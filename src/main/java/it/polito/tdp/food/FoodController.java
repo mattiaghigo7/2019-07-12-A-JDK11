@@ -5,8 +5,11 @@
 package it.polito.tdp.food;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.food.model.Food;
+import it.polito.tdp.food.model.FoodCalories;
 import it.polito.tdp.food.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -41,7 +44,7 @@ public class FoodController {
     private Button btnSimula; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxFood"
-    private ComboBox<?> boxFood; // Value injected by FXMLLoader
+    private ComboBox<Food> boxFood; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
@@ -49,13 +52,33 @@ public class FoodController {
     @FXML
     void doCreaGrafo(ActionEvent event) {
     	txtResult.clear();
-    	txtResult.appendText("Creazione grafo...");
+    	String input = this.txtPorzioni.getText();
+    	if(input=="") {
+    		this.txtResult.setText("Inserire un valore!");
+    		return;
+    	}
+    	try {
+    		Integer n = Integer.parseInt(input);
+    		model.creaGrafo(n);
+    		this.txtResult.setText("Grafo creato!\n");
+    		this.txtResult.appendText("#Vertici: "+model.getVerticiSize()+"\n");
+    		this.txtResult.appendText("#Archi: "+model.getArchiSize()+"\n");
+    		this.boxFood.getItems().addAll(model.getVertici());
+    		this.btnCalorie.setDisable(false);
+    		this.btnSimula.setDisable(false);
+    	} catch(NumberFormatException e){
+    		this.txtResult.setText("Valore inserito non valido!");
+    		return;
+    	}
     }
     
     @FXML
     void doCalorie(ActionEvent event) {
     	txtResult.clear();
-    	txtResult.appendText("Analisi calorie...");
+    	List<FoodCalories> l = model.getCalorieCongiunte(5);
+    	for(FoodCalories f : l) {
+    		this.txtResult.appendText(f.getF()+" "+f.getN()+"\n");
+    	}
     }
 
     @FXML
@@ -77,5 +100,7 @@ public class FoodController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	this.btnCalorie.setDisable(true);
+    	this.btnSimula.setDisable(true);
     }
 }
